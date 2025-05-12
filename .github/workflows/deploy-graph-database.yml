@@ -1,0 +1,37 @@
+# .github/workflows/deploy-graph-database.yml
+
+name: Deploy Graph Database
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Neo4j
+      run: |
+        # Instalación de Neo4j
+        sudo apt-get update
+        sudo apt-get install -y neo4j
+
+    - name: Start Neo4j service
+      run: sudo systemctl start neo4j
+
+    - name: Verify Neo4j service
+      run: sudo systemctl status neo4j
+
+    - name: Create sample graph data
+      run: |
+        # Conexión a Neo4j y creación de datos de ejemplo
+        cypher-shell -u neo4j -p password 'CREATE (alice:Person {name: "Alice"})-[:FRIEND]->(bob:Person {name: "Bob"})'
+
+    - name: Verify graph data
+      run: |
+        # Verificación de los datos creados
+        cypher-shell -u neo4j -p password 'MATCH (n) RETURN n'
